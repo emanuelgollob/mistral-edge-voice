@@ -1,0 +1,11 @@
+# Client-side runtime dependencies for voice_agent.py.
+#
+# These install in any standard Python venv. Server-side dependencies
+# (vllm + vllm-omni) live in two separate venvs managed by
+# launch_servers.sh — see README "Installation" for the split.
+
+httpx
+numpy
+sounddevice
+soxr
+websockets

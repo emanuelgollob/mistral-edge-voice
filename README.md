@@ -53,9 +53,9 @@ System requirements:
 - Linux with PipeWire 1.x and `pactl` (`module-echo-cancel` with `aec_method=webrtc` available)
 - CUDA-capable GPU (see [Hardware](#hardware))
 
-Python client dependencies (for `voice_agent.py`): `httpx`, `numpy`, `sounddevice`, `soxr`, `websockets`.
+Python client dependencies for `voice_agent.py` are listed in [`requirements.txt`](requirements.txt). Install with `pip install -r requirements.txt` into any standard venv (these are the agent-side imports — they're independent of `MAIN_VENV` / `TTS_VENV` which carry the inference servers).
 
-*Full install recipe (pinned versions, model download, venv bootstrap) TBD — to be added once verified end-to-end against this repo.*
+Per-model installation, dependency requirements, and vLLM serving instructions live on each model's HuggingFace page (linked in [Third-Party Components](#third-party-components) below). A pinned-versions end-to-end recipe specific to this repo is TBD pending a verified test run.
 
 ## Quickstart
 
@@ -92,9 +92,9 @@ This project integrates the following third-party software and models. Each rema
 
 | Component | Role | License |
 |-----------|------|---------|
-| `mistralai/Voxtral-Mini-4B-Realtime-2602` | Streaming ASR | *TBD — confirm Mistral release license* |
-| `mistralai/Ministral-3-14B-Instruct-2512` | LLM | *TBD — confirm Mistral release license* |
-| `mistralai/Voxtral-4B-TTS-2603` | Neural TTS | *TBD — confirm Mistral release license* |
+| [`mistralai/Voxtral-Mini-4B-Realtime-2602`](https://huggingface.co/mistralai/Voxtral-Mini-4B-Realtime-2602) | Streaming ASR | *TBD — confirm Mistral release license* |
+| [`mistralai/Ministral-3-14B-Instruct-2512`](https://huggingface.co/mistralai/Ministral-3-14B-Instruct-2512) | LLM | *TBD — confirm Mistral release license* |
+| [`mistralai/Voxtral-4B-TTS-2603`](https://huggingface.co/mistralai/Voxtral-4B-TTS-2603) | Neural TTS | *TBD — confirm Mistral release license* |
 | [vLLM](https://github.com/vllm-project/vllm) | ASR + LLM inference engine | Apache 2.0 |
 | `vllm-omni` | Multimodal inference for TTS | *TBD — confirm release license* |
 | [PipeWire `module-echo-cancel`](https://pipewire.org/) | Acoustic echo cancellation (WebRTC AEC3 backend) | LGPL-2.1+ (with BSD-3-Clause AEC3 via `webrtc-audio-processing`) |
