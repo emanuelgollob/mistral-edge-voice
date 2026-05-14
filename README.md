@@ -27,25 +27,64 @@ The stack was developed in the context of the artistic-research project *Intimat
 
 ## Hardware
 
-*TBD — target single edge GPU (VRAM budget, reference card) and audio I/O setup will be pinned as the stack stabilizes.*
+A single CUDA-capable GPU runs all three models concurrently. The launcher allocates VRAM as roughly **22% ASR + 40% LLM + ~15% TTS** (configurable in `launch_servers.sh`), so any card with enough headroom for that split works in principle.
+
+**Reference card:** NVIDIA RTX 6000 Pro Max-Q Workstation GPU, granted through the **NVIDIA Academic AI Grant** program (NVIDIA Corporation). The default VRAM proportions in `launch_servers.sh` are tuned to this card.
+
+*TBD — audio I/O reference setup will be pinned with verified test runs.*
 
 ## Installation
 
-*TBD — installation instructions will be added as the stack stabilizes.*
+The stack uses **two Python virtual environments** to keep vLLM and vllm-omni isolated — they have conflicting dependencies and should not share an interpreter:
+
+| Venv | Default path | Contents |
+|------|--------------|----------|
+| `MAIN_VENV` | `$HOME/.venv` | vLLM with the ASR (Voxtral Realtime) and LLM (Ministral 3 14B) servers |
+| `TTS_VENV`  | `$HOME/tts`   | vllm-omni with the Voxtral TTS server |
+
+Override the paths via env vars:
 
 ```bash
-git clone https://github.com/<user>/mistral-edge-voice.git
-cd mistral-edge-voice
-# install deps...
+MAIN_VENV=/path/to/main TTS_VENV=/path/to/tts ./launch_servers.sh
 ```
+
+System requirements:
+
+- Linux with PipeWire 1.x and `pactl` (`module-echo-cancel` with `aec_method=webrtc` available)
+- CUDA-capable GPU (see [Hardware](#hardware))
+
+Python client dependencies (for `voice_agent.py`): `httpx`, `numpy`, `sounddevice`, `soxr`, `websockets`.
+
+*Full install recipe (pinned versions, model download, venv bootstrap) TBD — to be added once verified end-to-end against this repo.*
 
 ## Quickstart
 
-*TBD — launch instructions for the ASR, LLM, and TTS services and the full-duplex orchestrator.*
+```bash
+# Terminal 1: start the three vLLM servers (ASR, LLM, TTS). Sequential
+# startup takes ~1-2 min. Ctrl+C here stops all three and releases GPU.
+./launch_servers.sh
+
+# Terminal 2: run the voice agent.
+python voice_agent.py
+```
+
+Speak; the agent replies through the speaker. Barge-in is supported — start talking while the agent is speaking and it cuts itself off.
+
+Common options:
+
+```bash
+python voice_agent.py --no-speculation              # A/B baseline: no speculative LLM+TTS during user speech
+python voice_agent.py --voice de_female             # German voice (and language)
+python voice_agent.py --mic "Wireless GO"           # pick mic by name substring
+python voice_agent.py --prompt-file my_prompt.txt   # custom system prompt
+```
 
 ## Configuration
 
-*TBD — configuration schema for model paths, audio devices, AEC parameters, and conversation policy.*
+- **`systemprompt.txt`** — system prompt loaded at startup. Edit in place, or point at a different file with `--prompt-file path/to/other.txt`.
+- **CLI flags** — `python voice_agent.py --help` for the full list (mic, speaker, voice, prompt file, speculation toggle).
+- **Tunable constants** — the top of `voice_agent.py` exposes turn-detection windows, speculation thresholds, and AEC warmup, each documented inline.
+- **Server VRAM allocation** — adjust `--gpu-memory-utilization` in `launch_servers.sh` to fit your card.
 
 ## Third-Party Components
 
@@ -53,11 +92,12 @@ This project integrates the following third-party software and models. Each rema
 
 | Component | Role | License |
 |-----------|------|---------|
-| [Voxtral Realtime](https://mistral.ai) | Streaming ASR | *TBD — confirm Mistral release license* |
-| [Ministral 3 14B](https://mistral.ai) | LLM | *TBD — confirm Mistral release license* |
-| [Voxtral TTS](https://mistral.ai) | Neural TTS | *TBD — confirm Mistral release license* |
-| [vLLM](https://github.com/vllm-project/vllm) | LLM inference engine | Apache 2.0 |
-| AEC backend | Acoustic echo cancellation | *TBD — backend not yet selected* |
+| `mistralai/Voxtral-Mini-4B-Realtime-2602` | Streaming ASR | *TBD — confirm Mistral release license* |
+| `mistralai/Ministral-3-14B-Instruct-2512` | LLM | *TBD — confirm Mistral release license* |
+| `mistralai/Voxtral-4B-TTS-2603` | Neural TTS | *TBD — confirm Mistral release license* |
+| [vLLM](https://github.com/vllm-project/vllm) | ASR + LLM inference engine | Apache 2.0 |
+| `vllm-omni` | Multimodal inference for TTS | *TBD — confirm release license* |
+| [PipeWire `module-echo-cancel`](https://pipewire.org/) | Acoustic echo cancellation (WebRTC AEC3 backend) | LGPL-2.1+ (with BSD-3-Clause AEC3 via `webrtc-audio-processing`) |
 
 Model weights are downloaded from their official sources; this repository does not redistribute them.
 
@@ -72,6 +112,7 @@ Third-party model weights are governed by their respective licenses (see "Third-
 ## Acknowledgements
 
 - **Mistral AI** — for releasing Voxtral Realtime, Ministral 3 14B, and Voxtral TTS as open-weights models.
+- **NVIDIA Corporation** — for the NVIDIA RTX 6000 Pro Max-Q Workstation GPU used during development, awarded through the NVIDIA Academic AI Grant program.
 - **Open Innovation in Science Center, Ludwig Boltzmann Gesellschaft** (Vienna, Austria).
 - **Department of Creative Robotics, Kunstuniversität Linz** (Linz, Austria).
 - **Ars Electronica Festival 2026** — presentation context for *Intimate Triage*.
