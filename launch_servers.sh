@@ -16,12 +16,21 @@
 #   :8002  LLM    Ministral-3-14B-Instruct-2512   (HTTP / SSE)
 #   :8003  TTS    Voxtral-4B-TTS-2603             (WebSocket, vllm-omni)
 #
-# Two venvs are required:
-#   MAIN_VENV (default $HOME/.venv) — vllm with the ASR + LLM models
-#   TTS_VENV  (default $HOME/tts)   — vllm-omni for the TTS launcher
-# Do NOT merge them: vllm-omni's stage config breaks plain vllm.
+# Two venvs are required (do NOT merge them — vllm-omni's stage config
+# breaks plain vllm):
 #
-# Override via env vars:
+#   MAIN_VENV  vllm with the ASR + LLM models
+#   TTS_VENV   vllm-omni for the TTS launcher
+#
+# Resolution precedence for each path:
+#   1. Explicit env var ($MAIN_VENV / $TTS_VENV) if set
+#   2. Project-local venv at .venv/main / .venv/tts (created by setup_venvs.sh)
+#   3. Fallback to $HOME/.venv / $HOME/tts
+#
+# So `./setup_venvs.sh && ./launch_servers.sh` works with no exports,
+# while existing $HOME/.venv setups keep working unchanged. Override
+# inline if neither default fits:
+#
 #   MAIN_VENV=/path/to/main TTS_VENV=/path/to/tts ./launch_servers.sh
 #
 # Logs land in tmp/{asr,llm,tts}.log; tail in another terminal.
@@ -33,11 +42,58 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 LOG_DIR="$SCRIPT_DIR/tmp"
 mkdir -p "$LOG_DIR"
 
-MAIN_VENV="${MAIN_VENV:-$HOME/.venv}"
-TTS_VENV="${TTS_VENV:-$HOME/tts}"
+# Venv resolution: explicit env var wins; otherwise prefer the project-
+# local venvs created by setup_venvs.sh; otherwise fall back to the
+# $HOME defaults. Lets setup_venvs.sh "just work" without an export
+# ritual while leaving existing $HOME/.venv setups untouched.
+if [ -z "${MAIN_VENV:-}" ]; then
+    if [ -f "$SCRIPT_DIR/.venv/main/bin/activate" ]; then
+        MAIN_VENV="$SCRIPT_DIR/.venv/main"
+    else
+        MAIN_VENV="$HOME/.venv"
+    fi
+fi
+if [ -z "${TTS_VENV:-}" ]; then
+    if [ -f "$SCRIPT_DIR/.venv/tts/bin/activate" ]; then
+        TTS_VENV="$SCRIPT_DIR/.venv/tts"
+    else
+        TTS_VENV="$HOME/tts"
+    fi
+fi
+
 STARTUP_TIMEOUT="${STARTUP_TIMEOUT:-600}"   # seconds per server
 
 export MAIN_VENV TTS_VENV SCRIPT_DIR
+
+# Preflight: refuse to start if either venv path doesn't look like a venv.
+# Pointing the user at setup_venvs.sh is friendlier than a confusing vllm
+# "command not found" deep inside the per-server subshell.
+preflight_check_venvs() {
+    local missing=()
+    [ -f "$MAIN_VENV/bin/activate" ] || missing+=("MAIN_VENV at $MAIN_VENV")
+    [ -f "$TTS_VENV/bin/activate" ]  || missing+=("TTS_VENV at $TTS_VENV")
+    if [ ${#missing[@]} -gt 0 ]; then
+        echo "[launcher] no venv found at:" >&2
+        for m in "${missing[@]}"; do echo "[launcher]   $m" >&2; done
+        echo >&2
+        echo "[launcher] Either run ./setup_venvs.sh to create project-local venvs," >&2
+        echo "[launcher] or set MAIN_VENV / TTS_VENV to point at existing ones:" >&2
+        echo "[launcher]   MAIN_VENV=/path/to/main TTS_VENV=/path/to/tts ./launch_servers.sh" >&2
+        exit 1
+    fi
+}
+preflight_check_venvs
+
+# HF_TOKEN preflight (non-fatal). Without it, the first-time model
+# download will fail; once weights are cached locally subsequent runs
+# don't strictly need it. Warn but proceed.
+if [ -z "${HF_TOKEN:-}" ]; then
+    echo "[launcher] WARNING: HF_TOKEN is not set." >&2
+    echo "[launcher]   If the model weights aren't already cached, vllm will fail to" >&2
+    echo "[launcher]   download them. Export HF_TOKEN (see README → Installation →" >&2
+    echo "[launcher]   Authentication) before running, or proceed if you've already" >&2
+    echo "[launcher]   downloaded the weights." >&2
+fi
 
 # Captured pgids of children. `kill -SIG -<pgid>` hits the whole
 # process group, including vllm's own subprocess tree.

@@ -42,25 +42,56 @@ A single CUDA-capable GPU runs all three models concurrently. The launcher alloc
 
 The stack uses **two Python virtual environments** to keep vLLM and vllm-omni isolated — they have conflicting dependencies and should not share an interpreter:
 
-| Venv | Default path | Contents |
-|------|--------------|----------|
-| `MAIN_VENV` | `$HOME/.venv` | vLLM with the ASR (Voxtral Realtime) and LLM (Ministral 3 14B) servers |
-| `TTS_VENV`  | `$HOME/tts`   | vllm-omni with the Voxtral TTS server |
+| Venv | Contents |
+|------|----------|
+| `MAIN_VENV` | vLLM with the ASR (Voxtral Realtime) and LLM (Ministral 3 14B) servers, plus the client-side imports for `voice_agent.py` |
+| `TTS_VENV`  | vllm-omni with the Voxtral TTS server |
 
-Override the paths via env vars:
+**Quick path — bootstrap both venvs in one command:**
+
+```bash
+./setup_venvs.sh
+```
+
+This creates project-local venvs at `.venv/main/` and `.venv/tts/`, installs vLLM + `requirements.txt` into the first and vllm-omni into the second. It never touches `$HOME/.venv` or other system Python environments. The launcher auto-detects these paths — no env-var export needed afterwards.
+
+**Manual path** — if you'd rather install into your own venvs, set `MAIN_VENV` / `TTS_VENV` when launching:
 
 ```bash
 MAIN_VENV=/path/to/main TTS_VENV=/path/to/tts ./launch_servers.sh
 ```
 
+The launcher resolves the venv paths in this order: explicit env var → project-local `.venv/main` / `.venv/tts` → fallback to `$HOME/.venv` / `$HOME/tts`. A preflight check refuses to start with a pointer at `setup_venvs.sh` if none of those exist.
+
 System requirements:
 
 - Linux with PipeWire 1.x and `pactl` (`module-echo-cancel` with `aec_method=webrtc` available)
 - CUDA-capable GPU (see [Hardware](#hardware))
+- Python 3.10+, `git`, and [`uv`](https://docs.astral.sh/uv/) on `PATH` (install with `curl -LsSf https://astral.sh/uv/install.sh | sh` if missing) — `setup_venvs.sh` uses `uv pip` per the Voxtral TTS install guide
 
-Python client dependencies for `voice_agent.py` are listed in [`requirements.txt`](requirements.txt). Install with `pip install -r requirements.txt` into any standard venv (these are the agent-side imports — they're independent of `MAIN_VENV` / `TTS_VENV` which carry the inference servers).
+### Authentication
 
-Per-model installation, dependency requirements, and vLLM serving instructions live on each model's HuggingFace page (linked in [Third-Party Components](#third-party-components) below). A pinned-versions end-to-end recipe specific to this repo is TBD pending a verified test run.
+vLLM downloads the Mistral model weights from HuggingFace at first server boot. Before running either setup path:
+
+1. Accept each model's terms on its HuggingFace page (linked in [Third-Party Components](#third-party-components)).
+2. Create an access token at <https://huggingface.co/settings/tokens> (read-only is sufficient).
+3. Export it in any shell that runs `setup_venvs.sh` or `launch_servers.sh`:
+
+   ```bash
+   export HF_TOKEN=hf_xxxxxxxxxxxxxxxxxxxxxxxxxxxx
+   ```
+
+   Persist by adding the line to your shell's rc file (`~/.bashrc` / `~/.zshrc` / similar).
+
+Other env vars worth knowing:
+
+| Env var | Purpose |
+|---------|---------|
+| `HF_HOME` | HuggingFace cache directory (default `~/.cache/huggingface`). Override if your home partition is small — combined model weights are ~30 GB. |
+| `CUDA_VISIBLE_DEVICES` | Which GPU(s) to use if you have several. Default: all visible. |
+| `STARTUP_TIMEOUT` | Per-server health-check deadline in `launch_servers.sh` (default 600 s). Raise on slow networks where first-time model downloads dominate. |
+
+Per-model installation specifics and vLLM serving instructions live on each model's HuggingFace page (linked in [Third-Party Components](#third-party-components) below).
 
 ## Quickstart
 
@@ -69,7 +100,9 @@ Per-model installation, dependency requirements, and vLLM serving instructions l
 # startup takes ~1-2 min. Ctrl+C here stops all three and releases GPU.
 ./launch_servers.sh
 
-# Terminal 2: run the voice agent.
+# Terminal 2: activate MAIN_VENV (where the client deps live) and run
+# the agent. If you used setup_venvs.sh, that's .venv/main:
+source .venv/main/bin/activate
 python voice_agent.py
 ```
 
