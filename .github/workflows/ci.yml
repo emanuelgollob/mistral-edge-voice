@@ -1,0 +1,22 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  syntax:
+    name: Syntax check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Python syntax (py_compile)
+        run: python -m py_compile voice_agent.py launch_tts.py
+
+      - name: Bash syntax (bash -n)
+        run: bash -n launch_servers.sh
