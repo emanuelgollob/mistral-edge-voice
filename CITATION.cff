@@ -1,0 +1,30 @@
+cff-version: 1.2.0
+message: If you use this software in your work, please cite it as below.
+title: mistral-edge-voice
+abstract: >-
+  Full-duplex local voice agent stack for Mistral models (Voxtral Realtime,
+  Ministral 3 14B, Voxtral TTS) on a single edge GPU. Developed for Intimate
+  Triage, Ars Electronica 2026.
+authors:
+  - family-names: Gollob
+    given-names: Emanuel
+    email: emanuel@emanuelgollob.com
+    affiliation: >-
+      Open Innovation in Science Center (Ludwig Boltzmann Gesellschaft);
+      Department of Creative Robotics (Kunstuniversität Linz)
+repository-code: https://github.com/emanuelgollob/mistral-edge-voice
+url: https://github.com/emanuelgollob/mistral-edge-voice
+license: Apache-2.0
+keywords:
+  - voice-agent
+  - mistral
+  - voxtral
+  - ministral
+  - vllm
+  - edge-ai
+  - open-weights
+  - realtime-asr
+  - tts
+  - acoustic-echo-cancellation
+  - human-robot-interaction
+  - artistic-research

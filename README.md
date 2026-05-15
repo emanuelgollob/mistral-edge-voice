@@ -126,4 +126,4 @@ Third-party model weights are governed by their respective licenses (see "Third-
 
 ## Citation
 
-*TBD — citation block will be added when the accompanying festival entry / publication is available.*
+Machine-readable citation metadata is in [`CITATION.cff`](CITATION.cff); GitHub also exposes a "Cite this repository" button on the repo page that reads from it. A formal paper / festival entry citation will be added here once the accompanying publication is available.
