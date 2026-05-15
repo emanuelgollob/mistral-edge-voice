@@ -5,8 +5,8 @@ on:
   pull_request:
 
 jobs:
-  syntax:
-    name: Syntax check
+  ci:
+    name: Syntax + tests
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -15,8 +15,19 @@ jobs:
         with:
           python-version: "3.11"
 
+      - name: Install system audio deps
+        # libportaudio2 is needed by sounddevice at import time, which the
+        # tests trigger transitively via `from voice_agent import ...`.
+        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends libportaudio2
+
+      - name: Install Python deps
+        run: pip install -r requirements.txt
+
       - name: Python syntax (py_compile)
         run: python -m py_compile voice_agent.py launch_tts.py
 
       - name: Bash syntax (bash -n)
         run: bash -n launch_servers.sh
+
+      - name: Run tests
+        run: python -m unittest discover tests/ -v
