@@ -36,7 +36,24 @@ A single CUDA-capable GPU runs all three models concurrently. The launcher alloc
 
 **Reference card:** NVIDIA RTX 6000 Pro Max-Q Workstation GPU, granted through the **NVIDIA Academic AI Grant** program (NVIDIA Corporation). The default VRAM proportions in `launch_servers.sh` are tuned to this card.
 
-*TBD — audio I/O reference setup will be pinned with verified test runs.*
+### Verified environment
+
+Snapshot of the stack the maintainer has end-to-end tested on the reference card above. Other recent combinations likely work — open an issue if something breaks.
+
+| Component | Version |
+|-----------|---------|
+| OS | *TBD — `lsb_release -d`* |
+| Linux kernel | *TBD — `uname -r`* |
+| PipeWire | *TBD — `pipewire --version`* |
+| Audio I/O | *TBD — mic + speaker model* |
+| NVIDIA driver | *TBD — top of `nvidia-smi`* |
+| CUDA | *TBD — `nvidia-smi` "CUDA Version:"* |
+| Python | *TBD — `python3 --version` (3.10+)* |
+| `vllm` | *TBD — `uv pip show vllm` in MAIN venv* |
+| `vllm-omni` | *TBD — `uv pip show vllm-omni` in TTS venv* |
+| `mistral_common` | *TBD — `python -c "import mistral_common; print(mistral_common.__version__)"` (>= 1.10.0)* |
+
+`torch` / `torchaudio` / `torchvision` are pulled in transitively by `vllm` — don't install them manually; `vllm` pins the versions it needs.
 
 ## Installation
 
