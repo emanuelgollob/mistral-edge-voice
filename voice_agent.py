@@ -26,7 +26,8 @@ Usage:
     python voice_agent.py --mic <name>                 # override mic by name
     python voice_agent.py --voice de_female            # German voice
     python voice_agent.py --no-speculation             # disable speculation
-    python voice_agent.py --prompt-file my_prompt.txt  # custom system prompt
+    python voice_agent.py --systemprompt /path/to/file.txt        # custom system prompt
+    python voice_agent.py --asr-url ws://remote:8001/v1/realtime  # remote ASR server
 
 Trade-offs:
     - Barge-in during the first AEC_WARMUP seconds of each TTS reply
@@ -429,7 +430,11 @@ class ASRStream:
         resp = json.loads(await self._ws.recv())
         if resp.get("type") != "session.created":
             log.warning("Unexpected first ASR message: %s", resp.get("type"))
-        await self._ws.send(json.dumps({"type": "session.update", "model": ASR_MODEL}))
+        await self._ws.send(json.dumps({
+            "type": "session.update",
+            "model": ASR_MODEL,
+            "turn_detection": {"type": "server_vad"},
+        }))
         await self._ws.send(json.dumps({"type": "input_audio_buffer.commit"}))
         log.info("ASR ready.")
 
@@ -1214,6 +1219,13 @@ def _load_prompt(path_str: str) -> str:
 
 
 def main():
+    # `global` must appear before any read of the names. The CLI block
+    # below uses ASR_URL / LLM_URL / TTS_WS_URL as argparse defaults; the
+    # post-parse-args block rebinds them with the user's CLI choices,
+    # threading the values into every ASRStream / LLMClient / TTSSession
+    # call that reads these globals at runtime.
+    global ASR_URL, LLM_URL, TTS_WS_URL
+
     p = argparse.ArgumentParser(description="mistral-edge-voice — full-duplex voice agent.")
     p.add_argument(
         "--mic", type=_device_arg, default=None,
@@ -1241,19 +1253,35 @@ def main():
         help="Disable speculation. Use as an A/B baseline against the default speculative flow.",
     )
     p.add_argument(
-        "--prompt-file", default=DEFAULT_PROMPT_FILE,
+        "--systemprompt", default=DEFAULT_PROMPT_FILE,
         help=("Path to a text file containing the system prompt. Relative "
               f"paths resolve to the directory of this script. Default: {DEFAULT_PROMPT_FILE}."),
     )
+    p.add_argument(
+        "--asr-url", default=ASR_URL,
+        help="WebSocket URL for the ASR server. Default: %(default)s",
+    )
+    p.add_argument(
+        "--llm-url", default=LLM_URL,
+        help="HTTP URL for the LLM chat-completions endpoint. Default: %(default)s",
+    )
+    p.add_argument(
+        "--tts-url", default=TTS_WS_URL,
+        help="WebSocket URL for the TTS streaming endpoint. Default: %(default)s",
+    )
     args = p.parse_args()
 
+    ASR_URL    = args.asr_url
+    LLM_URL    = args.llm_url
+    TTS_WS_URL = args.tts_url
+
     try:
-        system_prompt = _load_prompt(args.prompt_file)
+        system_prompt = _load_prompt(args.systemprompt)
     except OSError as e:
-        log.error("Could not load prompt file %r: %s", args.prompt_file, e)
+        log.error("Could not load prompt file %r: %s", args.systemprompt, e)
         return
     if not system_prompt:
-        log.error("Prompt file %r is empty.", args.prompt_file)
+        log.error("Prompt file %r is empty.", args.systemprompt)
         return
 
     aec = EchoCancelModule()

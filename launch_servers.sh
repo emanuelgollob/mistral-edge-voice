@@ -199,9 +199,13 @@ start_pg "llm" "$LOG_DIR/llm.log" '
 wait_for_health "${CHILD_PGIDS[-1]}" 8002 "LLM" || exit 1
 
 # ── 3. TTS: Voxtral TTS via launch_tts.py (port 8003) ─────────
+# `python -u` forces unbuffered stdout/stderr. Without it, a TTS crash
+# during startup can lose its traceback to Python's block-buffer when
+# the process dies — leaves tmp/tts.log near-empty and the failure mode
+# undiagnosable. ASR/LLM go through vllm's CLI which handles this itself.
 start_pg "tts" "$LOG_DIR/tts.log" '
     source "$TTS_VENV/bin/activate"
-    exec python "$SCRIPT_DIR/launch_tts.py"
+    exec python -u "$SCRIPT_DIR/launch_tts.py"
 '
 wait_for_health "${CHILD_PGIDS[-1]}" 8003 "TTS" || exit 1
 

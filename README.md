@@ -1,5 +1,7 @@
 # mistral-edge-voice
 
+[![CI](https://github.com/emanuelgollob/mistral-edge-voice/actions/workflows/ci.yml/badge.svg)](https://github.com/emanuelgollob/mistral-edge-voice/actions/workflows/ci.yml)
+
 Full-duplex local voice agent stack for Mistral models (Voxtral Realtime, Ministral 3 14B, Voxtral TTS) on a single edge GPU.
 
 > [!NOTE]
@@ -128,16 +130,17 @@ Speak; the agent replies through the speaker. Barge-in is supported — start ta
 Common options:
 
 ```bash
-python voice_agent.py --no-speculation              # A/B baseline: no speculative LLM+TTS during user speech
-python voice_agent.py --voice de_female             # German voice (and language)
-python voice_agent.py --mic "Wireless GO"           # pick mic by name substring
-python voice_agent.py --prompt-file my_prompt.txt   # custom system prompt
+python voice_agent.py --no-speculation                       # A/B baseline: no speculative LLM+TTS during user speech
+python voice_agent.py --voice de_female                      # German voice (and language)
+python voice_agent.py --mic "Wireless GO"                    # pick mic by name substring
+python voice_agent.py --systemprompt /path/to/file.txt       # custom system prompt
+python voice_agent.py --asr-url ws://remote:8001/v1/realtime # point ASR at a remote server (same for --llm-url and --tts-url)
 ```
 
 ## Configuration
 
-- **`systemprompt.txt`** — system prompt loaded at startup. Edit in place, or point at a different file with `--prompt-file path/to/other.txt`.
-- **CLI flags** — `python voice_agent.py --help` for the full list (mic, speaker, voice, prompt file, speculation toggle).
+- **`systemprompt.txt`** — system prompt loaded at startup. Edit in place, or point at a different file with `--systemprompt /path/to/file.txt`.
+- **CLI flags** — `python voice_agent.py --help` for the full list (mic, speaker, voice, system prompt, speculation toggle, server URLs).
 - **Tunable constants** — the top of `voice_agent.py` exposes turn-detection windows, speculation thresholds, and AEC warmup, each documented inline.
 - **Server VRAM allocation** — adjust `--gpu-memory-utilization` in `launch_servers.sh` to fit your card.
 
