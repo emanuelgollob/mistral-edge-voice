@@ -2,6 +2,9 @@
 
 Full-duplex local voice agent stack for Mistral models (Voxtral Realtime, Ministral 3 14B, Voxtral TTS) on a single edge GPU.
 
+> [!NOTE]
+> **Artistic-research code, not production.** APIs and defaults may change as the project evolves; pin a specific commit if you need stability.
+
 > Developed for **Intimate Triage**, presented at **Ars Electronica Festival 2026**.
 
 ---
