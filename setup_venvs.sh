@@ -122,6 +122,13 @@ echo "[setup] installing into MAIN venv: vllm + audio libs + transformers + clie
 # to `uv pip install -U vllm` plus `uv pip install vllm-omni --upgrade`
 # (>= 0.18.0). vllm-omni is a separate package from mainline vllm and
 # carries the OmniOpenAIServingSpeech endpoint launch_tts.py imports.
+#
+# Third step is a guard against an ABI hazard the guide doesn't mention:
+# `vllm-omni --upgrade` can pull in a newer torch (e.g. 2.12.x) than
+# vllm's pre-built `_C.abi3.so` (built against torch 2.11.x), producing
+# an `undefined symbol: at::cuda::getCurrentCUDABlasHandle()` ImportError
+# at TTS boot. Re-installing vllm last forces uv to resolve torch back
+# to the version vllm's wheels expect.
 echo
 echo "[setup] installing into TTS venv: vllm + vllm-omni (per Voxtral TTS guide)"
 (
@@ -129,6 +136,7 @@ echo "[setup] installing into TTS venv: vllm + vllm-omni (per Voxtral TTS guide)
     source "$TTS_VENV_PATH/bin/activate"
     uv pip install -U vllm
     uv pip install vllm-omni --upgrade
+    uv pip install --reinstall -U vllm     # re-pin torch to vllm's ABI
     verify_mistral_common
 )
 
