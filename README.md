@@ -12,6 +12,8 @@ Full-duplex local voice agent stack for Mistral models (Voxtral Realtime, Minist
 
 The stack was developed in the context of the artistic-research project *Intimate Triage* (working title), exploring human–robot interaction through voice. It is released here as a general-purpose foundation for similar work.
 
+*As shipped, the stack is for non-commercial use only — one bundled model (Voxtral TTS) is CC BY-NC 4.0. The source code itself is Apache 2.0. See the [License](#license) section for the per-component breakdown.*
+
 ## Architecture
 
 ```
@@ -92,11 +94,11 @@ This project integrates the following third-party software and models. Each rema
 
 | Component | Role | License |
 |-----------|------|---------|
-| [`mistralai/Voxtral-Mini-4B-Realtime-2602`](https://huggingface.co/mistralai/Voxtral-Mini-4B-Realtime-2602) | Streaming ASR | *TBD — confirm Mistral release license* |
-| [`mistralai/Ministral-3-14B-Instruct-2512`](https://huggingface.co/mistralai/Ministral-3-14B-Instruct-2512) | LLM | *TBD — confirm Mistral release license* |
-| [`mistralai/Voxtral-4B-TTS-2603`](https://huggingface.co/mistralai/Voxtral-4B-TTS-2603) | Neural TTS | *TBD — confirm Mistral release license* |
+| [`mistralai/Voxtral-Mini-4B-Realtime-2602`](https://huggingface.co/mistralai/Voxtral-Mini-4B-Realtime-2602) | Streaming ASR | Apache 2.0 |
+| [`mistralai/Ministral-3-14B-Instruct-2512`](https://huggingface.co/mistralai/Ministral-3-14B-Instruct-2512) | LLM | Apache 2.0 |
+| [`mistralai/Voxtral-4B-TTS-2603`](https://huggingface.co/mistralai/Voxtral-4B-TTS-2603) | Neural TTS | **CC BY-NC 4.0** *(non-commercial)* |
 | [vLLM](https://github.com/vllm-project/vllm) | ASR + LLM inference engine | Apache 2.0 |
-| `vllm-omni` | Multimodal inference for TTS | *TBD — confirm release license* |
+| [`vllm-omni`](https://github.com/vllm-project/vllm-omni) | Multimodal inference for TTS | Apache 2.0 |
 | [PipeWire `module-echo-cancel`](https://pipewire.org/) | Acoustic echo cancellation (WebRTC AEC3 backend) | LGPL-2.1+ (with BSD-3-Clause AEC3 via `webrtc-audio-processing`) |
 
 Model weights are downloaded from their official sources; this repository does not redistribute them.
@@ -108,6 +110,8 @@ Copyright (c) 2026 Emanuel Gollob. Developed as external contracted work for the
 Source code is released under the Apache License 2.0 — see [LICENSE](LICENSE).
 
 Third-party model weights are governed by their respective licenses (see "Third-Party Components" above).
+
+**Note:** while the source code and two of the three model weights are permissively licensed (Apache 2.0), the Voxtral TTS weights are CC BY-NC 4.0 — *non-commercial use only*. The stack as-shipped is therefore non-commercial; commercial deployment requires either swapping the TTS component or obtaining a separate license from Mistral.
 
 ## Acknowledgements
 
