@@ -21,6 +21,13 @@ ENV/
 .env
 .env.*
 
+# Local-only audit / review reports
+PRE_PUBLIC_AUDIT.md
+RELEVANCE_AUDIT.md
+
+# Claude Code per-project local config / state
+.claude/
+
 # Test + type-check caches
 .pytest_cache/
 .mypy_cache/
