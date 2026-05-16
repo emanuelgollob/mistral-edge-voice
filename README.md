@@ -44,16 +44,16 @@ Snapshot of the stack the maintainer has end-to-end tested on the reference card
 
 | Component | Version |
 |-----------|---------|
-| OS | *TBD — `lsb_release -d`* |
-| Linux kernel | *TBD — `uname -r`* |
-| PipeWire | *TBD — `pipewire --version`* |
-| Audio I/O | *TBD — mic + speaker model* |
-| NVIDIA driver | *TBD — top of `nvidia-smi`* |
-| CUDA | *TBD — `nvidia-smi` "CUDA Version:"* |
-| Python | *TBD — `python3 --version` (3.10+)* |
-| `vllm` | *TBD — `uv pip show vllm` in MAIN venv* |
-| `vllm-omni` | *TBD — `uv pip show vllm-omni` in TTS venv* |
-| `mistral_common` | *TBD — `python -c "import mistral_common; print(mistral_common.__version__)"` (>= 1.10.0)* |
+| OS | Ubuntu 24.04.4 LTS |
+| Linux kernel | 6.17.0-23-generic |
+| PipeWire | 1.0.5 |
+| Audio I/O | AnkerWork M650 wireless microphone + Logitech speakers |
+| NVIDIA driver | 580.142 |
+| CUDA | 13.0 |
+| Python | 3.13.12 |
+| `vllm` | 0.21.0 |
+| `vllm-omni` | 0.20.0 |
+| `mistral_common` | 1.11.2 |
 
 `torch` / `torchaudio` / `torchvision` are pulled in transitively by `vllm` — don't install them manually; `vllm` pins the versions it needs.
 
