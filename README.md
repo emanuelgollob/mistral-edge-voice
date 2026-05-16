@@ -179,4 +179,27 @@ Third-party model weights are governed by their respective licenses (see "Third-
 
 ## Citation
 
-Machine-readable citation metadata is in [`CITATION.cff`](CITATION.cff); GitHub also exposes a "Cite this repository" button on the repo page that reads from it. A formal paper / festival entry citation will be added here once the accompanying publication is available.
+<details>
+<summary><b>Cite this repository</b></summary>
+
+Citation metadata lives in [`CITATION.cff`](CITATION.cff); GitHub reads from it to populate the **Cite this repository** button in the sidebar of the repo page.
+
+**APA**
+
+> Gollob, E. (2026). *mistral-edge-voice* [Computer software]. https://github.com/emanuelgollob/mistral-edge-voice
+
+**BibTeX**
+
+```bibtex
+@software{gollob_mistral_edge_voice_2026,
+  author  = {Gollob, Emanuel},
+  title   = {{mistral-edge-voice}},
+  year    = {2026},
+  url     = {https://github.com/emanuelgollob/mistral-edge-voice},
+  license = {Apache-2.0}
+}
+```
+
+</details>
+
+A formal paper / festival entry citation will be added here once the accompanying publication is available.
