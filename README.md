@@ -178,6 +178,12 @@ Third-party model weights are governed by their respective licenses (see "Third-
 - **Department of Creative Robotics, Kunstuniversität Linz** (Linz, Austria).
 - **Ars Electronica Festival 2026** — presentation context for *Intimate Triage*.
 
+## Development note
+
+This repository was developed with Claude Code (Anthropic) as a coding collaborator. Claude Code was used to draft, refactor, and debug the implementation. The architecture, the model stack, the full-duplex ASR design, and the interaction logic took shape through that collaboration and were tested and committed by me.
+
+I name the tool because tools that take on real agency in a process should be named, not absorbed into the author. The friction of working with a capable but non-accountable system is also part of how this code came to exist, and part of what the installation examines.
+
 ## Citation
 
 <details>
