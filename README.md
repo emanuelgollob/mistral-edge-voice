@@ -50,6 +50,7 @@ Snapshot of the stack the maintainer has end-to-end tested on the reference card
 | Audio I/O | AnkerWork M650 wireless microphone + Logitech speakers |
 | NVIDIA driver | 580.142 |
 | CUDA | 13.0 |
+| Peak VRAM (during reply) | *TBD — measure with `nvidia-smi` during a reply* |
 | Python | 3.13.12 |
 | `vllm` (MAIN venv) | 0.21.0 |
 | `vllm` (TTS venv, pinned by `vllm-omni`) | 0.20.0 |
