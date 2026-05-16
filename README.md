@@ -51,8 +51,9 @@ Snapshot of the stack the maintainer has end-to-end tested on the reference card
 | NVIDIA driver | 580.142 |
 | CUDA | 13.0 |
 | Python | 3.13.12 |
-| `vllm` | 0.21.0 |
-| `vllm-omni` | 0.20.0 |
+| `vllm` (MAIN venv) | 0.21.0 |
+| `vllm` (TTS venv, pinned by `vllm-omni`) | 0.20.0 |
+| `vllm-omni` (TTS venv) | 0.20.0 |
 | `mistral_common` | 1.11.2 |
 
 `torch` / `torchaudio` / `torchvision` are pulled in transitively by `vllm` — don't install them manually; `vllm` pins the versions it needs.
