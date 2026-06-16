@@ -3,9 +3,13 @@
 # These install in any standard Python venv. Server-side dependencies
 # (vllm + vllm-omni) live in two separate venvs managed by
 # launch_servers.sh — see README "Installation" for the split.
+#
+# Versions are pinned to the set verified end-to-end on the reference
+# card (see README "Verified environment"). Bump as needed; these are
+# the known-good baseline, not hard ceilings.
 
-httpx
-numpy
-sounddevice
-soxr
-websockets
+httpx==0.28.1
+numpy==2.4.4
+sounddevice==0.5.5
+soxr==1.1.0
+websockets==16.0
