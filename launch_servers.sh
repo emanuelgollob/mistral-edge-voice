@@ -131,16 +131,41 @@ trap cleanup INT TERM EXIT
 start_pg() {
     # Usage: start_pg <label> <logfile> <bash-body>
     # Starts the body as a new session/process group leader so we can
-    # tree-kill the whole vllm worker stack later.
+    # tree-kill the whole vllm worker stack later via the negative pgid.
+    #
+    # We deliberately do NOT trust `$!` for the pgid. When this launcher
+    # runs under a shell with job control active (`set -m` — some CI
+    # runners, `bash -m`, or an interactive `source`), `setsid` finds
+    # itself a process-group leader and forks; the parent it captures in
+    # `$!` exits immediately, leaving the real server reparented under a
+    # pgid we never saw. wait_for_health would then see a dead pgid and
+    # tear everything down while the orphaned vllm keeps the GPU.
+    #
+    # So the spawned shell reports its own pgid back through a temp file.
+    # `setsid` always makes that shell a session leader (pgid == its pid),
+    # so `$$` is the true pgid whether or not setsid forked.
     local label="$1"; shift
     local logfile="$1"; shift
     local body="$1"; shift
-    setsid bash -c "$body" > "$logfile" 2>&1 < /dev/null &
-    local pid=$!
-    # `setsid` makes the new process its own pgrp leader → pgid == pid.
-    CHILD_PGIDS+=("$pid")
+    local pgid_file; pgid_file="$(mktemp)"
+    setsid bash -c "echo \$\$ > '$pgid_file'; $body" > "$logfile" 2>&1 < /dev/null &
+    # The shell writes its pgid before the slow source/exec, so it lands
+    # near-instantly; poll briefly rather than racing it.
+    local pgid="" waited=0
+    while [ -z "$pgid" ] && [ "$waited" -lt 50 ]; do
+        pgid="$(cat "$pgid_file" 2>/dev/null)"
+        [ -n "$pgid" ] && break
+        sleep 0.1
+        waited=$((waited + 1))
+    done
+    rm -f "$pgid_file"
+    if [ -z "$pgid" ]; then
+        echo "[launcher] $label failed to report its process group" >&2
+        return 1
+    fi
+    CHILD_PGIDS+=("$pgid")
     CHILD_LABELS+=("$label")
-    echo "[launcher] $label started (pid/pgid=$pid, log=$logfile)"
+    echo "[launcher] $label started (pgid=$pgid, log=$logfile)"
 }
 
 wait_for_health() {
@@ -180,7 +205,7 @@ start_pg "asr" "$LOG_DIR/asr.log" '
         --max-model-len 8192 \
         --max-num-seqs 4 \
         --max-num-batched-tokens 8192
-'
+' || exit 1
 wait_for_health "${CHILD_PGIDS[-1]}" 8001 "ASR" || exit 1
 
 # ── 2. LLM: Ministral 3 14B Instruct (port 8002) ──────────────
@@ -195,7 +220,7 @@ start_pg "llm" "$LOG_DIR/llm.log" '
         --max-model-len 8192 \
         --max-num-seqs 2 \
         --enable-prefix-caching
-'
+' || exit 1
 wait_for_health "${CHILD_PGIDS[-1]}" 8002 "LLM" || exit 1
 
 # ── 3. TTS: Voxtral TTS via launch_tts.py (port 8003) ─────────
@@ -206,7 +231,7 @@ wait_for_health "${CHILD_PGIDS[-1]}" 8002 "LLM" || exit 1
 start_pg "tts" "$LOG_DIR/tts.log" '
     source "$TTS_VENV/bin/activate"
     exec python -u "$SCRIPT_DIR/launch_tts.py"
-'
+' || exit 1
 wait_for_health "${CHILD_PGIDS[-1]}" 8003 "TTS" || exit 1
 
 echo
