@@ -123,20 +123,34 @@ echo "[setup] installing into MAIN venv: vllm + audio libs + transformers + clie
 # (>= 0.18.0). vllm-omni is a separate package from mainline vllm and
 # carries the OmniOpenAIServingSpeech endpoint launch_tts.py imports.
 #
-# Third step is a guard against an ABI hazard the guide doesn't mention:
-# `vllm-omni --upgrade` can pull in a newer torch (e.g. 2.12.x) than
-# vllm's pre-built `_C.abi3.so` (built against torch 2.11.x), producing
-# an `undefined symbol: at::cuda::getCurrentCUDABlasHandle()` ImportError
-# at TTS boot. Re-installing vllm last forces uv to resolve torch back
-# to the version vllm's wheels expect.
+# vllm is pinned to 0.20.0 to match vllm-omni 0.20.0 (the latest on
+# PyPI as of 2026-05). Running vllm-omni 0.20 against vllm 0.21+
+# hits two version-drift crashes that don't surface until inference:
+# AsyncOmni cannot be instantiated (missing `notify_kv_transfer_request_rejected`
+# on the new EngineClient ABC), and both stage schedulers call a
+# removed `_get_routed_experts` on every stopped request. Drop both
+# pins when vllm-omni 0.21+ ships.
+#
+# audioop-lts back-fills Python 3.13's removed stdlib `audioop` module,
+# which pydub (a vllm-omni transitive dep) does `import audioop`
+# against. Without it the TTS server crashes at import time with
+# `ModuleNotFoundError: No module named 'audioop'`.
+#
+# The third `--reinstall` step guards against an ABI hazard the
+# Voxtral guide doesn't mention: a fresh vllm-omni install can shift
+# torch to a version vllm's pre-built `_C.abi3.so` wasn't compiled
+# against, producing an `undefined symbol: at::cuda::getCurrentCUDABlasHandle()`
+# ImportError at TTS boot. Re-pinning vllm last forces uv to resolve
+# torch back to the version vllm's wheels expect.
 echo
-echo "[setup] installing into TTS venv: vllm + vllm-omni (per Voxtral TTS guide)"
+echo "[setup] installing into TTS venv: vllm==0.20.0 + vllm-omni==0.20.0 + audioop-lts"
 (
     # shellcheck source=/dev/null
     source "$TTS_VENV_PATH/bin/activate"
-    uv pip install -U vllm
-    uv pip install vllm-omni --upgrade
-    uv pip install --reinstall -U vllm     # re-pin torch to vllm's ABI
+    uv pip install "vllm==0.20.0"
+    uv pip install "vllm-omni==0.20.0"
+    uv pip install --reinstall "vllm==0.20.0"   # re-pin torch to vllm's ABI
+    uv pip install audioop-lts                  # Python 3.13 stdlib audioop replacement
     verify_mistral_common
 )
 
