@@ -1,22 +1,19 @@
 mistral-edge-voice
 Copyright (c) 2026 Emanuel Gollob
 
-This software was developed by Emanuel Gollob as an external
-contracted artist within the following institutional contexts:
+Developed as part of the artistic-research project "Intimate Triage"
+(presented at the Ars Electronica Festival 2026) across the following
+institutional contexts:
 
   - Open Innovation in Science Center, Ludwig Boltzmann Gesellschaft
     (Vienna, Austria)
   - Department of Creative Robotics, Kunstuniversität Linz
     (Linz, Austria)
 
-The software was developed in the context of the artistic-research
-project "Intimate Triage" (working title), presented at the
-Ars Electronica Festival 2026.
-
 The reference hardware used during development — an NVIDIA RTX 6000
 Pro Max-Q Workstation GPU — was granted through the NVIDIA Academic
 AI Grant program (NVIDIA Corporation).
 
-This product includes third-party software and models. See the
+This software includes third-party components and models. See the
 "Third-Party Components" section of the README for a complete list
 of integrated components and their respective licenses.
