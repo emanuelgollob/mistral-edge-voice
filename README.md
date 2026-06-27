@@ -163,13 +163,10 @@ Model weights are downloaded from their official sources; this repository does n
 
 ## License
 
-Copyright (c) 2026 Emanuel Gollob. Developed as external contracted work for the Open Innovation in Science Center (Ludwig Boltzmann Gesellschaft) and the Department of Creative Robotics (Kunstuniversität Linz). See [NOTICE](NOTICE) for full attribution.
+Copyright (c) 2026 Emanuel Gollob, released under the Apache License 2.0 (see [LICENSE](https://github.com/emanuelgollob/mistral-edge-voice/blob/main/LICENSE)).
+Full attribution is listed in [NOTICE](https://github.com/emanuelgollob/mistral-edge-voice/blob/main/NOTICE).
 
-Source code is released under the Apache License 2.0 — see [LICENSE](LICENSE).
-
-Third-party model weights are governed by their respective licenses (see "Third-Party Components" above).
-
-**Note:** while the source code and two of the three model weights are permissively licensed (Apache 2.0), the Voxtral TTS weights are CC BY-NC 4.0 — *non-commercial use only*. The stack as-shipped is therefore non-commercial; commercial deployment requires either swapping the TTS component or obtaining a separate license from Mistral.
+Third-party model weights are governed by their own licenses (see Third-Party Components above). Note: the code and two of the three model weights are Apache 2.0, but the Voxtral TTS weights are CC BY-NC 4.0 (non-commercial). The stack as shipped is therefore non-commercial.
 
 ## Acknowledgements
 
