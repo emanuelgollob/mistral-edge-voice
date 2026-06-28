@@ -36,7 +36,7 @@ The stack was developed in the context of the artistic-research project *Intimat
 
 A single CUDA-capable GPU runs all three models concurrently. The launcher allocates VRAM as roughly **22% ASR + 40% LLM + ~15% TTS** (configurable in `launch_servers.sh`), so any card with enough headroom for that split works in principle.
 
-**Reference card:** NVIDIA RTX 6000 Pro Max-Q Workstation GPU, granted through the **NVIDIA Academic AI Grant** program (NVIDIA Corporation). The default VRAM proportions in `launch_servers.sh` are tuned to this card.
+**Reference card:** NVIDIA RTX PRO 6000 Blackwell Max-Q Workstation Edition, granted through the **NVIDIA Academic AI Grant** program (NVIDIA Corporation). The default VRAM proportions in `launch_servers.sh` are tuned to this card.
 
 ### Verified environment
 
