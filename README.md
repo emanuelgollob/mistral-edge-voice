@@ -170,6 +170,8 @@ Third-party model weights are governed by their own licenses (see Third-Party Co
 
 ## Acknowledgements
 
+*Intimate Triage* is a collaboration by Emanuel Gollob with **Jan Smeddinck**, **Misagh Saboori**, and **Pavithren V S Pakianathan**. This repository holds the voice-agent stack, authored by Emanuel Gollob; the broader artistic project is a shared work.
+
 - **Mistral AI** — for releasing Voxtral Realtime, Ministral 3 14B, and Voxtral TTS as open-weights models.
 - **NVIDIA Corporation** — for the RTX PRO 6000 Blackwell Max-Q Workstation Edition used during development, awarded through the NVIDIA Academic AI Grant program.
 - **Open Innovation in Science Center, Ludwig Boltzmann Gesellschaft** (Vienna, Austria).

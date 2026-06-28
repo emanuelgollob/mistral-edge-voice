@@ -6,6 +6,8 @@ Developed as part of the artistic research project "Intimate Triage" across the 
   - Open Innovation in Science Center, Ludwig Boltzmann Gesellschaft (Vienna, Austria)
   - Department of Creative Robotics, Kunstuniversität Linz (Linz, Austria)
 
+"Intimate Triage" is co-authored by Emanuel Gollob, Jan Smeddinck, Misagh Saboori, and Pavithren V S Pakianathan. The software in this repository was authored by Emanuel Gollob.
+
 The reference hardware used during development, an RTX PRO 6000 Blackwell Max-Q Workstation Edition GPU, was provided through the NVIDIA Academic AI Grant Program.
 
 This software includes third-party components and models. See the "Third-Party Components" section of the README for a complete list of integrated components and their respective licenses.
