@@ -205,4 +205,4 @@ Citation metadata lives in [`CITATION.cff`](CITATION.cff); GitHub reads from it 
 
 </details>
 
-A formal paper / festival entry citation will be added here once the accompanying publication is available.
+A formal festival entry citation will be added here once the accompanying publication is available.
